@@ -10,7 +10,7 @@ StringAnalyzer
 
 This module analyzes character categories.
 
-Quick Start (command line)
+Quick Start
 -----------
 
 .. code-block:: python
@@ -27,7 +27,15 @@ Quick Start (command line)
    >>>      is_comprehensive = True
    >>> )
 
-This ``result`` contains counts of all character categories. 
+``analyze_string`` function requires ``input_string`` and ``is_comprehensive``. ``input_string`` is string to be analyzed, and ``is_comprehensive`` define the use of ``categorize_character`` or ``categorize_character_comprehensive``.
+
+``input_string`` above is:
+
+.. code-block:: sh
+
+   Kennedystraße, 51147 Köln, ドイツ¥
+
+The ``result`` contains counts of all character categories. 
 
 .. code-block:: sh
 
