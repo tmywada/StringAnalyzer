@@ -15,7 +15,6 @@ class Utilities:
         https://www.ascii-code.com/
         https://www.williamrobertson.net/documents/ascii.shtml
         """
-        self.idx_null = 0
         self.idx_numeric = 1
         self.idx_alphabet = 2
         self.idx_alphabet_lower = 3
@@ -70,12 +69,8 @@ class Utilities:
         """
         Categorize character by types.
         """
-        # --- null
-        if pd.isnull(ch):
-            return self.idx_null
-
         # --- numeric
-        elif ch.isnumeric():
+        if ch.isnumeric():
             return self.idx_numeric
 
         # --- alphabet (both upper and lower letters)
@@ -101,26 +96,26 @@ class Utilities:
         """
         Categorize character by comprehensive types.
         """
-        # --- null
-        if pd.isnull(ch):
-            return self.idx_null
-
         # --- numeric
-        elif ch.isnumeric():
+        if ch.isnumeric():
             return self.idx_numeric
-
-        # --- alphabet
-        elif ch.isalpha():
-            if ch.isupper():
-                return self.idx_alphabet
-            else:
-                return self.idx_alphabet_lower
 
         # --- get code point
         try:
             code_point = ord(ch)
         except:
             return self.idx_unknown
+
+        # =============================================
+        #   Alphabets (upper and lower)
+        # =============================================
+        if 32 <= code_point <= 126:
+            if ch.isupper():
+                return self.idx_alphabet
+            elif ch.islower():
+                return self.idx_alphabet_lower
+            else:
+                return self.idx_ascii
 
         # =============================================
         #   exceptions within ASCII (32-127)
@@ -144,7 +139,7 @@ class Utilities:
         # =============================================
         #   exceptions (128-)
         # =============================================    
-        idx_category = categorize_unicode_code_point(code_point)
+        idx_category = self.serach_known_code_point(code_point)
 
         if idx_category != 99:
             return idx_category
@@ -213,7 +208,6 @@ class AnalyzeString(Utilities):
 
         # --- 
         categories_other = [
-            self.idx_null,
             self.idx_ascii_control,
             self.idx_other
         ]
@@ -238,47 +232,53 @@ class AnalyzeString(Utilities):
         """
         """
         # --- initialization
-        num_null             = 0
-        num_numeric          = 0
-        num_upper_letter     = 0
-        num_lower_letter     = 0
-        num_non_alphanumeric = 0
-        num_other            = 0
+        num_numeric           = 0
+        num_upper_letter      = 0
+        num_lower_letter      = 0
+        num_ascii             = 0
+        num_extended_ascii    = 0
+        num_extended_alphabet = 0
+        num_symbols           = 0
+        num_other             = 0
 
         # --- define aggregated categories
-        categories_non_alphanumeric = [
-            self.idx_ascii,
-            self.idx_extended_ascii,
+        categories_extended_alphabet = [
             self.idx_latin_lower,
-            self.idx_latin_upper,
+            self.idx_latin_upper
+        ]
+
+        categories_symbols = [
             self.idx_currency,
-            self.idx_math,
-            self.idx_other                  
+            self.idx_math
         ]
 
         categories_other = [
             self.idx_ascii_control,
             self.idx_extended_ascii_non_printable,
             self.idx_other_non_printable,
+            self.idx_other,
             self.idx_unknown
-        ]
+        ]        
 
         # ---
         categories = [self.categorize_character_comprehensive(v) for v in input_string]
-        num_null             = categories.count(self.idx_null)
-        num_numeric          = categories.count(self.idx_numeric)
-        num_lower_letter     = categories.count(self.idx_alphabet_lower)
-        num_upper_letter     = categories.count(self.idx_alphabet)
-        num_non_alphanumeric = sum([categories.count(v) for v in categories_non_alphanumeric])
-        num_other            = sum([categories.count(v) for v in categories_other])
+        num_numeric           = categories.count(self.idx_numeric)
+        num_upper_letter      = categories.count(self.idx_alphabet)
+        num_lower_letter      = categories.count(self.idx_alphabet_lower)
+        num_ascii             = categories.count(self.idx_ascii)
+        num_extended_ascii    = categories.count(self.idx_extended_ascii)
+        num_extended_alphabet = sum([categories.count(v) for v in categories_extended_alphabet])
+        num_symbols           = sum([categories.count(v) for v in categories_symbols])
+        num_other             = sum([categories.count(v) for v in categories_other])
 
-    
         res = {
-            'null': num_null,
             'numeric': num_numeric,
             'lower_letter': num_lower_letter, 
             'upper_letter': num_upper_letter,
-            'non_alphanumeric': num_non_alphanumeric,
+            'ascii': num_ascii,
+            'extended_ascii': num_extended_ascii,
+            'extended_alphabet': num_extended_alphabet,
+            'symbols': num_symbols,
             'other': num_other
         }
 
