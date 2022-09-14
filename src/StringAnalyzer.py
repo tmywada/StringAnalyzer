@@ -2,7 +2,6 @@
 #                             String Analyzer
 # =================================================================================
 #
-import pandas as pd
 import argparse
 
 # --- version
